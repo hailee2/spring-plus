@@ -30,7 +30,7 @@ public class Todo extends Timestamped {
     @OneToMany(mappedBy = "todo", cascade = CascadeType.REMOVE)
     private List<Comment> comments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "todo")   // 연관관계 주인은 Manager -> 'todo.managers' 컬렉션 업데이트시 db에 쿼리 날리지 않음.
+    @OneToMany(mappedBy = "todo", cascade = CascadeType.ALL)
     private List<Manager> managers = new ArrayList<>();
 
     public Todo(String title, String contents, String weather, User user) {
@@ -38,6 +38,6 @@ public class Todo extends Timestamped {
         this.contents = contents;
         this.weather = weather;
         this.user = user;
-        this.managers.add(new Manager(user, this));
+        this.managers.add(new Manager(user, this));     //여기서 현재 작성자가 매니저로 생성됨.
     }
 }
