@@ -1,6 +1,7 @@
 package org.example.expert.domain.todo.controller;
 
 import org.example.expert.config.JwtAuthenticationFilter;
+import org.example.expert.config.JwtUtil;
 import org.example.expert.config.SecurityConfig;
 import org.example.expert.domain.common.dto.AuthUser;
 import org.example.expert.domain.common.exception.InvalidRequestException;
@@ -14,8 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDateTime;
@@ -24,11 +23,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@WebMvcTest(controllers = TodoController.class)
+/* 혹은 이렇게
 @WebMvcTest(controllers = TodoController.class,
-        excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE,
-                //SecurityConfig, JwtAuthenticationFilter 모두 스캔 제외, 이제 JwtUtil 필요 없음
-                classes = {SecurityConfig.class, JwtAuthenticationFilter.class}))
-@AutoConfigureMockMvc(addFilters = false) // 필터 실행 아예 무시
+         excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE,
+                classes = {SecurityConfig.class, JwtAuthenticationFilter.class})) //SecurityConfig, JwtAuthenticationFilter 모두 스캔 제외, 이제 JwtUtil 필요 없음
+ */
+@AutoConfigureMockMvc(addFilters = false) // 필터 실행 아예 무시 -> 인증 에러를 여기서 무시하도록 함.
 class TodoControllerTest {
 
     @Autowired
@@ -36,6 +37,8 @@ class TodoControllerTest {
 
     @MockBean
     private TodoService todoService;
+    @MockBean
+    private JwtUtil jwtUtil; // 필터가 필요로 하는 의존성 Mock
 
     @Test
     void todo_단건_조회에_성공한다() throws Exception {
