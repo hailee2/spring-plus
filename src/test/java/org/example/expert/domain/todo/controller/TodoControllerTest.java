@@ -1,5 +1,7 @@
 package org.example.expert.domain.todo.controller;
 
+import org.example.expert.config.JwtAuthenticationFilter;
+import org.example.expert.config.SecurityConfig;
 import org.example.expert.domain.common.dto.AuthUser;
 import org.example.expert.domain.common.exception.InvalidRequestException;
 import org.example.expert.domain.todo.dto.response.TodoResponse;
@@ -9,8 +11,11 @@ import org.example.expert.domain.user.entity.User;
 import org.example.expert.domain.user.enums.UserRole;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDateTime;
@@ -19,7 +24,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(TodoController.class)
+@WebMvcTest(controllers = TodoController.class,
+        excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE,
+                //SecurityConfig, JwtAuthenticationFilter 모두 스캔 제외, 이제 JwtUtil 필요 없음
+                classes = {SecurityConfig.class, JwtAuthenticationFilter.class}))
+@AutoConfigureMockMvc(addFilters = false) // 필터 실행 아예 무시
 class TodoControllerTest {
 
     @Autowired
@@ -33,7 +42,7 @@ class TodoControllerTest {
         // given
         long todoId = 1L;
         String title = "title";
-        AuthUser authUser = new AuthUser(1L, "email", UserRole.USER);
+        AuthUser authUser = new AuthUser(1L, "email", UserRole.ROLE_USER);
         User user = User.fromAuthUser(authUser);
         UserResponse userResponse = new UserResponse(user.getId(), user.getEmail());
         TodoResponse response = new TodoResponse(

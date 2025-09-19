@@ -41,7 +41,7 @@ public class JwtUtil {
                 Jwts.builder()
                         .setSubject(String.valueOf(userId))
                         .claim("email", email)
-                        .claim("userRole", userRole)
+                        .claim("userRole", userRole.getUserRole())
                         .claim("nickname", nickname)
                         .setExpiration(new Date(date.getTime() + TOKEN_TIME))
                         .setIssuedAt(date) // 발급일
@@ -53,6 +53,7 @@ public class JwtUtil {
         if (StringUtils.hasText(tokenValue) && tokenValue.startsWith(BEARER_PREFIX)) {
             return tokenValue.substring(7);
         }
+        log.error("Not Found Token");
         throw new ServerException("Not Found Token");
     }
 
